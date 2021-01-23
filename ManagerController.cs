@@ -5,6 +5,8 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using CarRentingSystem.BusinessLogic.Concretes;
+using CarRentingSystem.Commons.Concretes.Helpers;
+using CarRentingSystem.Commons.Concretes.Logger;
 using CarRentingSystem.DataAccess.Entity;
 
 namespace CarRentingSystemApi.Controllers
@@ -12,22 +14,32 @@ namespace CarRentingSystemApi.Controllers
     public class ManagerController : ApiController
     {
         // GET api/values
+        [HttpGet]
         public HttpResponseMessage Get()
         {
-            ManagerBusiness managerBusiness = new ManagerBusiness();
+            try
+            {
+                ManagerBusiness managerBusiness = new ManagerBusiness();
 
-            var tempManagers = managerBusiness.ListManagers().Select(
-                i => new
-                {
-                    i.Name,
-                    i.Address,
-                    i.BeginningDateOfDriverLicense,
-                    i.DatetimeOfCreated,
-                    i.CityOfBirth,
-                    i.PhotoURL,
-                }).ToList();
+                var tempManagers = managerBusiness.ListManagers().Select(
+                    i => new
+                    {
+                        i.Name,
+                        i.Address,
+                        i.BeginningDateOfDriverLicense,
+                        i.DatetimeOfCreated,
+                        i.CityOfBirth,
+                        i.PhotoURL,
+                    }).ToList();
 
-            return Request.CreateResponse(HttpStatusCode.OK, tempManagers);
+                return Request.CreateResponse(HttpStatusCode.OK, tempManagers);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log(LogTarget.File,
+                    "Manager Get failed. "+"\n" + ExceptionHelper.ExceptionToString(ex));
+                return null;
+            }
         }
 
         // GET api/values/5
@@ -37,6 +49,7 @@ namespace CarRentingSystemApi.Controllers
         }
 
         // POST api/values
+        [HttpPost]
         public string Post(Companies entity)
         {
             try
@@ -47,6 +60,8 @@ namespace CarRentingSystemApi.Controllers
             }
             catch (Exception ex)
             {
+                LogHelper.Log(LogTarget.File,
+                    "Manager Post failed. " + entity.Name+ "\n" + ExceptionHelper.ExceptionToString(ex));
                 return "Adding failed! Exception : " + ex.Message;
             }
         }
