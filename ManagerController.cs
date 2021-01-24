@@ -15,7 +15,7 @@ namespace CarRentingSystemApi.Controllers
     {
         // GET api/values
         [HttpGet]
-        public HttpResponseMessage Get()
+        public HttpResponseMessage ListGet()
         {
             try
             {
@@ -37,15 +37,65 @@ namespace CarRentingSystemApi.Controllers
             catch (Exception ex)
             {
                 LogHelper.Log(LogTarget.File,
-                    "Manager Get failed. "+"\n" + ExceptionHelper.ExceptionToString(ex));
+                    "Manager List Get failed. "+"\n" + ExceptionHelper.ExceptionToString(ex));
                 return null;
             }
         }
 
-        // GET api/values/5
-        public string Get(int id)
+        [HttpPost]
+        public Managers GetEncKey(Managers entity)
         {
-            return "value";
+            try
+            {
+                ManagerBusiness managerBusiness = new ManagerBusiness();
+
+                var tempManagers = managerBusiness.GetEncryptedKey(entity.Username);
+
+                return tempManagers;
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log(LogTarget.File,
+                    "Manager Get Enc failed. " + "\n" + ExceptionHelper.ExceptionToString(ex));
+                return null;
+
+            }
+        }
+
+        // GET api/values/5
+        public HttpResponseMessage Get(int id)
+        {
+            try
+            {
+                ManagerBusiness managerBusiness = new ManagerBusiness();
+
+                var result = managerBusiness.Find(id);
+                Managers tempData = new Managers()
+                {
+                    CompanyId = result.CompanyId,
+                    Name = result.Name,
+                    Surname = result.Surname,
+                    Address = result.Address,
+                    DatetimeOfCreated = result.DatetimeOfCreated,
+                    Username = result.Username,
+                    PhotoURL = result.PhotoURL,
+                    CityOfBirth = result.CityOfBirth,
+                    IdentificationNumber = result.IdentificationNumber,
+                    BeginningDateOfDriverLicense = result.BeginningDateOfDriverLicense,
+                    EndingDateOfDriverLicense = result.EndingDateOfDriverLicense,
+                    Password = result.Password,
+                    Id = result.Id
+                };
+                    
+
+                return Request.CreateResponse(HttpStatusCode.OK, tempData);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log(LogTarget.File,
+                    "Manager Get failed. " + "\n" + ExceptionHelper.ExceptionToString(ex));
+                return null;
+            }
         }
 
         // POST api/values
