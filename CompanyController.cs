@@ -30,7 +30,7 @@ namespace CarRentingSystemApi.Controllers
                         i.Name,
                         i.City,
                         i.PhoneNumber,
-                        PhotoURL = "https://png.pngtree.com/png-clipart/20210105/ourlarge/pngtree-green-anthropomorphic-virus-png-image_2695969.jpg",
+                        PhotoURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQR_ycvcflPi26BeryzzAsP2IB9Or9G7Y9bDA&usqp=CAU",
                         i.Point,
                         VehicleAmount = i.Vehicles.Count,
                         i.Address
@@ -156,6 +156,7 @@ namespace CarRentingSystemApi.Controllers
             {
                 int compId = Convert.ToInt32(entity.CompanyId);
                 CompanyBusiness companyBusiness = new CompanyBusiness();
+                entity.DatetimeOfCreated = DateTime.Now;
                 bool result = companyBusiness.AddCar(compId,entity);
                 return result == true ? "Added succesfuly!" : "Adding Failed!";
             }
@@ -192,6 +193,7 @@ namespace CarRentingSystemApi.Controllers
             {
                 int compId = Convert.ToInt32(entity.CompanyId);
                 CompanyBusiness companyBusiness = new CompanyBusiness();
+                entity.DatetimeOfRequest = DateTime.Now;
                 bool result = companyBusiness.AddRentnfo(compId, entity);
                 return result == true ? "Rent request created succesfuly!" : " Failed!";
             }
@@ -200,6 +202,38 @@ namespace CarRentingSystemApi.Controllers
                 LogHelper.Log(LogTarget.File,
                     "CompanyRentInfoAdd failed. " + entity.Customers.Name + "\n" + ExceptionHelper.ExceptionToString(ex));
                 return "Rent Request failed! Exception : " + ex.Message;
+            }
+        }
+
+        [HttpGet]
+        public HttpResponseMessage CompanyRentInfoGet(int id)
+        { 
+            try
+            {
+                CompanyBusiness companyBusiness = new CompanyBusiness();
+
+                var tempRents = companyBusiness.ListRentInfos(id).Select(i => new
+                {
+                    i.CompanyId,
+                    i.VehicleId,
+                    i.StaffThatConfirmsOrRejects,
+                    i.EndingOfRenting,
+                    i.DatetimeOfRequest,
+                    i.BeginningOfRenting,
+                    i.CustomerId,
+                    i.Id,
+                    i.IsRequestPending,
+                    i.IsRented,
+                    i.Price
+                }).ToList();
+
+                return Request.CreateResponse(HttpStatusCode.OK, tempRents);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log(LogTarget.File,
+                    "CompanyRentInfoGet failed. id:  "+id + "\n" + ExceptionHelper.ExceptionToString(ex));
+                return null;
             }
         }
 
