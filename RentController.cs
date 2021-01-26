@@ -50,6 +50,30 @@ namespace CarRentingSystemApi.Controllers
         }
 
         [HttpGet]
+        public HttpResponseMessage RentInfoForCustomer(int id)
+        {
+            try
+            {
+                RentInfoBusiness repo = new RentInfoBusiness();
+                var result =  repo.InfoForCustomer(id);
+
+                RezInfo info = new RezInfo()
+                {
+                    IsRequestPending = Convert.ToBoolean(result.IsRequestPending),
+                    IsRented = Convert.ToBoolean(result.IsRented)
+                  
+                };
+                return Request.CreateResponse(HttpStatusCode.OK, info);
+            }
+            catch (Exception ex)
+            {
+                LogHelper.Log(LogTarget.File,
+                    "Rent Info For Customer failed. " + id + "\n" + ExceptionHelper.ExceptionToString(ex));
+                return null;
+            }
+        }
+
+        [HttpGet]
         public HttpResponseMessage RentExtraInfo(int id)
         {
             
